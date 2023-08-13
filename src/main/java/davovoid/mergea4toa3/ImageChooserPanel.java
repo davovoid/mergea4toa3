@@ -46,6 +46,13 @@ import javax.swing.border.LineBorder;
 import java.awt.Color;
 import javax.swing.border.EtchedBorder;
 
+/**
+ * Component used to browse, drag and drop an image.
+ * The image can be previewed and the name is displayed.
+ * 
+ * @author David
+ *
+ */
 public class ImageChooserPanel extends JPanel {
 	
 	private BufferedImage img, defaultImg;
@@ -57,47 +64,87 @@ public class ImageChooserPanel extends JPanel {
 	private DropTarget imgDropTarget = new DropTarget() {
 		public synchronized void drop(DropTargetDropEvent evt) {
 
+			// Drop image event
 			evt.acceptDrop(DnDConstants.ACTION_COPY);
 			dropImage(evt.getTransferable());
 
 		}
-		
+
 	};
 	private JPanel panel;
-	
+
+	/**
+	 * Loads image from file and updates the UI.
+	 * 
+	 * @param image The image file
+	 * @throws IOException If the image could not be read properly
+	 */
 	public void loadImage(File image) throws IOException {
-		
+
 		img = ImageIO.read(image);
 		updateControls(image);
-		
+
 	}
-	
+
+	/**
+	 * Returns current selected image as BufferedImage. The image had already been
+	 * loaded using method {@code loadImage(image)}, so this function would not
+	 * throw any IOException.
+	 * 
+	 * @return The current selected (and loaded) image.
+	 */
 	public BufferedImage getImg() {
 		return img;
 	}
 
+	/**
+	 * Sets the image from this control using an already existing BufferedImage
+	 * object.
+	 * 
+	 * @param img The image to use as loaded image.
+	 */
 	public void setImg(BufferedImage img) {
 		this.img = img;
 		updateControls(null);
 	}
-	
+
+	/**
+	 * Gets the default image used, that is, the image displayed while not img is
+	 * loaded ({@code getImg()} is null).
+	 * 
+	 * @return The default image.
+	 */
 	public BufferedImage getDefaultImg() {
 		return defaultImg;
 	}
 
+	/**
+	 * Sets the default image, that is, the image displayed while no img is
+	 * loaded({@code getImg()} is null).
+	 * 
+	 * @param defaultImg The image to use as default image.
+	 */
 	public void setDefaultImg(BufferedImage defaultImg) {
 		this.defaultImg = defaultImg;
 		updateControls(null);
 	}
 
+	/**
+	 * Updates the controls inside this control with the file information. This
+	 * method will use the file name to update the file name displayed, and refresh
+	 * the image displayed depending on whether there is a image set (not null), or
+	 * otherwise use the default image (if available/not null).
+	 * 
+	 * @param file
+	 */
 	public void updateControls(File file) {
-		
-		imgPanel.setImage(img==null? defaultImg : img);
-		lblName.setText(file==null ? "" : file.getName());
+
+		imgPanel.setImage(img == null ? defaultImg : img);
+		lblName.setText(file == null ? "" : file.getName());
 		imgPanel.updateUI();
-		
+
 	}
-	
+
 	@Override
 	public void setEnabled(boolean enabled) {
 		
@@ -135,6 +182,9 @@ public class ImageChooserPanel extends JPanel {
 
 	        @Override
 	        public boolean importData(TransferHandler.TransferSupport support) {
+	        	
+	        	// Drop event but in the image panel
+	        	
 	            boolean accept = false;
 	            if (canImport(support)) {
 	                try {
@@ -170,6 +220,8 @@ public class ImageChooserPanel extends JPanel {
 		panel.add(btnBrowse, "3, 1, left, top");
 		btnBrowse.addActionListener(e -> {
 			
+			// Browse an image to use it as image
+			
 			JFileChooser chooser = new JFileChooser();
 			
 			if(chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
@@ -184,6 +236,11 @@ public class ImageChooserPanel extends JPanel {
 
 	}
 
+	/**
+	 * Same as {@code loadImage(file)}, but noticing the user
+	 * about the existence of an error. 
+	 * @param file The image file to load.
+	 */
 	private void guiLoadImage(File file) {
 		try {
 			
@@ -197,6 +254,10 @@ public class ImageChooserPanel extends JPanel {
 		}
 	}
 
+	/**
+	 * Common image dropping method, used by drag&drop or transfer handling.
+	 * @param transferable
+	 */
 	private void dropImage(Transferable transferable) {
 		if(!isEnabled()) return;
 		

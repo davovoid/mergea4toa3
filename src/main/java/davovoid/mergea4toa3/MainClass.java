@@ -48,42 +48,46 @@ public class MainClass {
 			// Change to system look and feel
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 
-			// BUG: font too small depending on java version
-			// Original source:
-			// https://stackoverflow.com/questions/7434845/setting-the-default-font-of-swing-program
-
-			java.util.Enumeration keys = UIManager.getDefaults().keys();
-			while (keys.hasMoreElements()) {
-				Object key = keys.nextElement();
-				Object value = UIManager.get(key);
-				if (value instanceof Font) {
-
-					Font defaultFont = (Font) value;
-					UIManager.put(key, new Font(defaultFont.getFontName(), defaultFont.getStyle(), 14));
-
-				}
-
-			}
-
-			// Launch the main GUI JFrame
-			
-			EventQueue.invokeLater(new Runnable() {
-				public void run() {
-					
-					try {
-						MainGUI frame = new MainGUI();
-						frame.setVisible(true);
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				}
-			});
-			
 		} catch (ClassNotFoundException | InstantiationException | IllegalAccessException
 				| UnsupportedLookAndFeelException e) {
 			
 			e.printStackTrace();
 		}
+	
+		// BUG: font too small depending on java version
+		// Original source:
+		// https://stackoverflow.com/questions/7434845/setting-the-default-font-of-swing-program
+
+		java.util.Enumeration keys = UIManager.getDefaults().keys();
+		while (keys.hasMoreElements()) {
+			Object key = keys.nextElement();
+			Object value = UIManager.get(key);
+			if (value instanceof Font) {
+
+				Font defaultFont = (Font) value;
+				UIManager.put(key, new Font(defaultFont.getFontName(), defaultFont.getStyle(), 14));
+
+			}
+
+		}
+
+		// Launch the main GUI JFrame
+		
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				
+				try {
+					
+					MainGUI frame = new MainGUI();
+					frame.setVisible(true);
+					
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				
+			}
+		});
+		
 	}
 
 }

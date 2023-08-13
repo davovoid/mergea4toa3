@@ -36,12 +36,23 @@ import java.awt.Font;
 import java.awt.Color;
 import java.awt.Toolkit;
 
+/**
+ * Frame used to show text documents related to current application. The
+ * documents are taken from classpath /davovoid/mergea4toa3/text (resources).
+ * The document name is taken as a parameter when constructing the JFrame. Read
+ * as UTF-8 and shown on screen using monospaced font.
+ * 
+ * @author David
+ *
+ */
 public class AboutBoxGUI extends JFrame {
 	private JEditorPane txtAbout;
 	private JScrollPane scp;
 
 	/**
 	 * Create the frame.
+	 * 
+	 * @param docname the document name.
 	 */
 	public AboutBoxGUI(String docname) {
 		setIconImage(Toolkit.getDefaultToolkit().getImage(AboutBoxGUI.class.getResource("/davovoid/mergea4toa3/icons/app-icon-64.png")));
@@ -52,17 +63,20 @@ public class AboutBoxGUI extends JFrame {
 				
 				String content;
 				
+				// Read document content as UTF-8
 				try {
 					content = IOUtils.resourceToString("/davovoid/mergea4toa3/text/" + docname, StandardCharsets.UTF_8);
 				
 				} catch (IOException e1) {
 					
+					// In case of error reading the document show warning
 					e1.printStackTrace();
 					content = "< Error retrieving internal about.txt content.\r\n"
 							+ "Please check the program integrity >";
 					
 				}
 				
+				// Set text content and move scroll up to the beginning
 				txtAbout.setText(content);
 				txtAbout.setCaretPosition(0);
 				

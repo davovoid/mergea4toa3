@@ -70,6 +70,12 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.FlowLayout;
 
+/**
+ * The main GUI for the application.
+ * 
+ * @author David
+ *
+ */
 public class MainGUI extends JFrame {
 	private ImageChooserPanel leftImagePanel;
 	private JButton btnMergeImages;
@@ -99,6 +105,11 @@ public class MainGUI extends JFrame {
 	private JLabel lblNewLabel_7;
 	private JLabel label_1;
 
+	/**
+	 * Sets the default images for the image selectors,
+	 * and the application icon.
+	 * @throws IOException If images could not be read.
+	 */
 	private void setDefaultImages() throws IOException {
 		
 		leftImagePanel.setDefaultImg(ImageIO.read(MainGUI.class.getResourceAsStream("/davovoid/mergea4toa3/icons/paper-icon-left.png")));
@@ -228,6 +239,8 @@ public class MainGUI extends JFrame {
 		btnMergeImages.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
+				// Check that all images had been selected
+				
 				if(leftImagePanel.getImg()==null
 						|| centerImagePanel.getImg()==null
 						|| rightImagePanel.getImg()==null) {
@@ -238,23 +251,33 @@ public class MainGUI extends JFrame {
 					
 				}
 				
+				// Loads the images
+				
 				BufferedImage imgLeft = leftImagePanel.getImg();
 				BufferedImage imgCenter = centerImagePanel.getImg();
 				BufferedImage imgRight = rightImagePanel.getImg();
 				
+				// Sets the displayed image
 				imgMerged.setImage(imgLeft);
 				imgMerged.updateUI();
 				
+				// Go to the prewiew and working panel
 				((CardLayout) cardPanel.getLayout()).show(cardPanel, "previewPanel");
 				numberOfMergedImages = 0;
+				
+				// Define thread, then started
 				
 				mergingThread = new Thread() {
 					
 					public void run(){
 						
+						// The A3 Merger
+						
 						A3Merger merger = new A3Merger(imgLeft);
 						merger.setScannerLeftCorrection(true);
 						
+						// Defines what the A3Merger shall do when some progress
+						// is done, and using and EventQueue
 						merger.setMergerStudyEvent(new A3MergerStudyEvent() {
 
 							@Override
@@ -267,9 +290,13 @@ public class MainGUI extends JFrame {
 									
 									public void run() {
 
+										// Calculate progress
 										double progressBarNum = progress * 50d + (double)(50*numberOfMergedImages);
 										
+										// Loading percent for the image component
 										imgMerged.setLoadingPercent(progressBarNum/100d);
+										
+										// Prepare the status text
 										
 										String whatisbeingmerged = numberOfMergedImages==0 ? "center" : "right";
 										
@@ -292,6 +319,7 @@ public class MainGUI extends JFrame {
 											
 										}
 										
+										// Green if good (small) deviation
 										lblStatus.setForeground(smallestdeviation<100 ? Color.green.darker() : Color.red.darker());
 										
 										pbStatus.setValue((int) (progressBarNum * 10d));
@@ -305,6 +333,7 @@ public class MainGUI extends JFrame {
 							
 						});
 						
+						// Center to left
 						merger.mergeImageOnRight(imgCenter, true);
 						result = merger.getWorkingImg();
 
@@ -313,13 +342,16 @@ public class MainGUI extends JFrame {
 							public void run() {
 
 								numberOfMergedImages = 1;
+								
+								// Sets the displayed image
 								imgMerged.setImage(result);
 								imgMerged.updateUI();
 								
 							}
 							
 						});
-						
+
+						// Right to merged (left+center)
 						merger.mergeImageOnRight(imgRight, true);
 						
 						result = merger.getWorkingImg();
@@ -328,8 +360,11 @@ public class MainGUI extends JFrame {
 							
 							public void run() {
 
+								// Sets the displayed image
 								imgMerged.setImage(result);
 								imgMerged.updateUI();
+								
+								// Finished
 								
 								lblStatus.setText("Finished processing merge.");
 								
@@ -358,6 +393,8 @@ public class MainGUI extends JFrame {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				
+				// The about screen for software info
+				
 				AboutBoxGUI about = new AboutBoxGUI("about.txt");
 				about.setTitle("About software and libraries");
 				about.setVisible(true);
@@ -378,6 +415,8 @@ public class MainGUI extends JFrame {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 
+				// The about screen for license info
+				
 				AboutBoxGUI about = new AboutBoxGUI("gpl-3.0.txt");
 				about.setTitle("GNU GPLv3 License from MergeA4toA3 application");
 				about.setVisible(true);
@@ -391,7 +430,8 @@ public class MainGUI extends JFrame {
 			public void mouseClicked(MouseEvent e) {
 				
 				try {
-					
+
+					// Go to the creator GitHub
 					Desktop.getDesktop().browse(new URI("https://github.com/davovoid"));
 					
 				} catch (IOException | URISyntaxException e1) {
@@ -466,13 +506,15 @@ public class MainGUI extends JFrame {
 					
 					try {
 						
-						mergingThread.stop();
+						mergingThread.stop(); // kills merging thread
 						
 					} catch (Exception e1) {
 						e1.printStackTrace();
 					}
 					
 				}
+				
+				// Goes back to the set-up menu
 				
 				setUIEnable(true);
 				
@@ -486,6 +528,8 @@ public class MainGUI extends JFrame {
 		panel_3.add(btnSaveImage);
 		btnSaveImage.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				
+				// Allows to save the image, using the save dialog
 				
 				JFileChooser fileChooser = new JFileChooser();
 				
@@ -518,6 +562,10 @@ public class MainGUI extends JFrame {
 		
 	}
 
+	/**
+	 * It shall be executed in the constructor once the MainGUI constructor
+	 * had been executed.
+	 */
 	private void afterGUIConstruction() {
 
 		try {
@@ -530,6 +578,11 @@ public class MainGUI extends JFrame {
 		
 	}
 
+	/**
+	 * Sets the frame enable status, and sets buttons/labels text accordingly.
+	 * Used when starting/stopping/finishing image processing/merge.
+	 * @param enable
+	 */
 	private void setUIEnable(boolean enable) {
 		
 		leftImagePanel.setEnabled(enable);
