@@ -104,6 +104,9 @@ public class MainGUI extends JFrame {
 	private JLabel lblDavovoidGithub;
 	private JLabel lblNewLabel_7;
 	private JLabel label_1;
+	
+	private double[] processDevResults = new double[2];
+	
 
 	/**
 	 * Sets the default images for the image selectors,
@@ -289,7 +292,7 @@ public class MainGUI extends JFrame {
 								EventQueue.invokeLater(new Runnable() {
 									
 									public void run() {
-
+										
 										// Calculate progress
 										double progressBarNum = progress * 50d + (double)(50*numberOfMergedImages);
 										
@@ -300,24 +303,32 @@ public class MainGUI extends JFrame {
 										
 										String whatisbeingmerged = numberOfMergedImages==0 ? "center" : "right";
 										
+										// deviation memory
+										
+										processDevResults[numberOfMergedImages] = smallestdeviation;
+										
+										String currentStatus = numberOfMergedImages==0 ? "" : String.format("Finished center, index: %.2f | ", processDevResults[0]);
+										
 										if(scaleRed==1) {
 
-											lblStatus.setText(String.format("(%.1f%%) Merging %s... Final processing, lowest index: %.5f.",
-													progressBarNum, whatisbeingmerged, smallestdeviation));
+											currentStatus += String.format("(%.1f%%) Merging %s... Final processing, lowest index: %.2f.",
+													progressBarNum, whatisbeingmerged, smallestdeviation);
 											
 										}
 										
 										else if(firstScaleRed==scaleRed) {
 
-											lblStatus.setText(String.format("(%.1f%%) Merging %s... First exploring (scale 1/%d), lowest index: %.5f.",
-													progressBarNum, whatisbeingmerged, scaleRed, smallestdeviation));
+											currentStatus += String.format("(%.1f%%) Merging %s... First exploring (scale 1/%d), lowest index: %.2f.",
+													progressBarNum, whatisbeingmerged, scaleRed, smallestdeviation);
 											
 										} else {
 
-											lblStatus.setText(String.format("(%.1f%%) Merging %s... Improving precision (scale 1/%d), lowest index: %.5f.",
-													progressBarNum, whatisbeingmerged, scaleRed, smallestdeviation));
+											currentStatus += String.format("(%.1f%%) Merging %s... Improving precision (scale 1/%d), lowest index: %.2f.",
+													progressBarNum, whatisbeingmerged, scaleRed, smallestdeviation);
 											
 										}
+										
+										lblStatus.setText(currentStatus);
 										
 										// Green if good (small) deviation
 										lblStatus.setForeground(smallestdeviation<100 ? Color.green.darker() : Color.red.darker());
@@ -365,8 +376,20 @@ public class MainGUI extends JFrame {
 								imgMerged.updateUI();
 								
 								// Finished
+
+								lblStatus.setForeground(Color.green.darker());
 								
-								lblStatus.setText("Finished processing merge.");
+								String devs = "";
+								
+								for(double dev : processDevResults) {
+									
+									devs += (devs.length()>0 ? " / " : "") + String.format("%.2f (%s)", dev, dev<100 ? "OK" : "Too high");
+									
+									if(dev>100) lblStatus.setForeground(Color.red.darker());
+									
+								}
+								
+								lblStatus.setText("Finished processing merge. Indexes = " + devs);
 								
 								pbStatus.setValue(pbStatus.getMinimum());
 
@@ -424,7 +447,7 @@ public class MainGUI extends JFrame {
 			}
 		});
 		
-		lblDavovoidGithub = new JLabel("Copyright (C) 2023 David R. Araújo Piñeiro (Davovoid)");
+		lblDavovoidGithub = new JLabel("Copyright (C) 2023-2024 David R. Araújo Piñeiro (Davovoid)");
 		lblDavovoidGithub.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
